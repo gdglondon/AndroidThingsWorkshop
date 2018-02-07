@@ -116,7 +116,7 @@ class Led(val pinName: String) : AutoCloseable {
         gpio?.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
     }
 
-    fun start() {
+    fun blink() {
         gpio?.value = !gpio?.value
     }
 
@@ -160,7 +160,7 @@ class BlinkLedActivity : Activity() {
     private fun ledRunnable(): Runnable = Runnable() {
         override fun run() {
             try {
-                led.start()
+                led.blink()
                 ledHandler.postDelayed(ledRunnable, DELAY)
             } catch (IOException e) {
                 Log.e(TAG, "Error on peripheral", e)
