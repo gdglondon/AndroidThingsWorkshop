@@ -30,7 +30,8 @@ Below is an example of the pinout diagram for the Raspberry Pi 3 and the Pico i.
 For more information please visit: https://developer.android.com/things/hardware/index.html
 
 ### Blinking LED Android Things Circuit
-The diagram below illustrates how to build your first circuit for this blinking LED exercise. The first diagram shows how to connect your components together. Very often, the actual physical representation of the circuit connection is not clear due to how the components and pins are arranged on the board. In order to make this easier to understand, the schematic diagram is provided underneath. A schematic diagram aims at clearly explaining how various components are connected together throughout your circuit design by greatly simplifiying the represenation of each component.
+The diagram below illustrates how to build your first circuit for this blinking LED exercise. The first diagram shows how to connect your components together. Very often, the actual physical representation of the circuit connection is not clear due to how the components and pins are arranged on the board. In order to make this easier to understand, the schematic diagram is provided underneath. A schematic diagram aims at clearly explaining how various components are connected together throughout your circuit design by greatly simplifiying the represenation of each component. 
+Please note that the longer leg of the LED is the one connecting to the resistor.
 
 #### Connection Diagram
 ![alt_text](./Diagrams/Blink_Led/blink_led.png)
@@ -58,4 +59,121 @@ R = 217.39Ω
 Looking at the available resistors that can be obtained off the shelf, it looks like a 220Ω resistor will be just fine!
 
 ### Choosing A GPIO Pin
-As you can see, the Raspberry Pi 3 as well as the Pico i.MXP7 have several pins and it is important to select an appropriate pin. The pins fulfill different purposes depending on your application but for this task, we only need to pick one to write data to the LED to turn it on. For more information on the different uses of each pin, please refer to the manufacturer's website or datasheet.
+As you can see, the Raspberry Pi 3 as well as the Pico MXP7 have several pins and it is important to select an appropriate pin. The pins fulfill different purposes depending on your application but for this task, we only need to pick one to write data to the LED to turn it on. For more information on the different uses of each pin, please refer to the manufacturer's website or datasheet. The GPIO pin we will choose on the Pi will be BCM6 while the one on the MXP will be GPIO2.
+
+### Blinking LED Android Things App
+Please follow the instructions from the Android Things website in order to get started and install the Android Things OS onto your board. https://developer.android.com/things/hardware/raspberrypi.html
+
+Once you have Android Things successfully running on the Pi or MXP, launch Android Studio and do the following:
+1.  Create a new project and create a blank activity. Feel free to give it any meaningful name. Let's go with BlinkLedActivity.
+2.  In your app level `build.gradle`, add the Android Things dependency
+
+```
+dependencies {
+  provided 'com.google.android.things:androidthings:0.1-devpreview'
+}
+```
+3.  Add the `<users-library>` tag to AndroidManifest. This implies that the Android Things library is needed by the app
+
+```
+<application>
+    <uses-library android:name="com.google.android.things"/>
+</application>
+```
+
+4. In order for BlinkLedActivity to launch once the board is booted, it has to be defined as the launcher activity in AndroidManifext. This can be done as follows
+
+```
+<activity android:name=".BlinkLedActivity">.
+    <!-- Required for Android Studio default launching -->
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+    </intent-filter>
+
+    <!-- Launch this activity on boot -->
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.IOT_LAUNCHER"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+    </intent-filter>
+</activity>
+```
+
+5.  Now let's get started and build our app logic. Feel free to use Java if you are more comfortable but since Kotlin is the cool kid on the block these days for Android development, we will use Kotlin throughout our examples. Note that the code we will show you is one of the several ways of achieving a blinking LED so do not be hesitate to try a different implementation.
+We begin by creating a class called Led which implements the AutoCloseable interface. This will require us to implement the `close()` method and provide a methodology to make sure the resources are closed once the operation has completed.
+The `PeripheralManagerService` class is one of the main classes of the Android Things library and is responsible for listing and opening peripherals on your board. We will use it to write data to pin BCM6 and turn on our LED. 
+The pin direction is initially set to `DIRECTION_OUT_INITIALLY_LOW` because we want the pin to output data to the LED and the starting voltage to be low.
+
+```
+class Led(val pinName: String) : AutoCloseable {
+
+    private var gpio: Gpio? = null
+
+    init {
+        val service = PeripheralManagerService()
+        gpio = service.openGpio(pinName)
+        gpio?.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
+    }
+
+    fun start() {
+        gpio?.value = !gpio?.value
+    }
+
+    override fun close() {
+        gpio?.close().also {
+            gpio = null
+        }
+    }
+}
+```
+
+6. In the BlinkLedActivity, we can now create an instance of Led in `onCreate` and implement a `Runnable` to handle the blinking as well as a 1 second delay.
+
+```
+class BlinkLedActivity : Activity() {
+    private lateinit var led
+    private val ledHandler = Handler()
+
+    protected fun onCreate(savedInstanceState: Bundle) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_blink)
+
+        try {
+            led = Led("BCM6")
+            ledHandler.post()
+        } catch (e: IOException) {
+            throw RuntimeException("Error connecting to IO Port", e)
+        }
+
+    }
+
+    protected fun onDestroy() {
+        super.onDestroy()
+        try {
+            led.close()
+        } catch (e: IOException) {
+            Log.e(TAG, "Error on closing GPIO", e)
+        }
+    }
+
+    private fun ledRunnable: Runnable = Runnable() {
+        override fun run() {
+            try {
+                led.start()
+                ledHandler.postDelayed(ledRunnable, DELAY)
+            } catch (IOException e) {
+                Log.e(TAG, "Error on peripheral", e)
+            }
+        }
+    }
+
+    companion object {
+        const val TAG = "BlinkLedActivity"
+        const val DELAY = 1000
+    }
+    
+}
+```
+
+7. Run the app and you should see your first Android Things Blinking LED! 🚨
