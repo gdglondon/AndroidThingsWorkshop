@@ -132,6 +132,7 @@ class Led(val pinName: String) : AutoCloseable {
 
 ```
 class BlinkLedActivity : Activity() {
+
     private lateinit var led
     private val ledHandler = Handler()
 
@@ -145,7 +146,6 @@ class BlinkLedActivity : Activity() {
         } catch (e: IOException) {
             throw RuntimeException("Error connecting to IO Port", e)
         }
-
     }
 
     protected fun onDestroy() {
@@ -157,7 +157,7 @@ class BlinkLedActivity : Activity() {
         }
     }
 
-    private fun ledRunnable: Runnable = Runnable() {
+    private fun ledRunnable(): Runnable = Runnable() {
         override fun run() {
             try {
                 led.start()
