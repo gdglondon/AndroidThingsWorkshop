@@ -4,17 +4,22 @@ In this first task you will use AndroidThings to turn on an LED. This will be ou
 
 
 ### Hardware Components
+
 1. Breadboard
+
 A breadboard is the construction base for all your electronic circuits. It provides an easy way to connect your components without requiring soldering. As per the breadboard diagram, the holes in the centre are connected by conductive metal strips horizontally while the holes on the edges are connected vertically.
 ![alt_text](./Diagrams/Breadboard/breadboard_conductivity.png)
 
 2. Jumper wires
+
 Generic all purpose wires used to connect your board to the components on the breadboard together.
 
 3. Resistors
+
 Essential parts of your electronic circuit as they primarily protect your components by limiting the amount of current flowing through them. Each component has a maximum current that it can handle and if the current going through them exceeds their rated value, they will get damaged and in some cases blow up! The resistance of a resistor is determined by the stripes. For this task, the resistor used will have a resistance of 220Ω
 
 4. LEDs
+
 LED stands for Light Emitting Diode and it will emit light when a current flows through them. LEDs only allows electricity to flow in one direction meaning that they will only light up if connected with the correct polarity. The short leg of the LED is the cathode (-ve) and the long leg is the anode (+ve). The anode is the end that connects to power. Note that LEDs can only handle a maximum current of about 23mA
 
 ### Ohm's Law
