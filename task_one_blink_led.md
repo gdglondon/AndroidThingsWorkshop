@@ -146,7 +146,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         try {
-            led = Led("BCM6")
+            led = Led("GPIO2_IO02")
             ledHandler.post(ledRunnable())
         } catch (e: IOException) {
             throw RuntimeException("Error connecting to IO Port", e)
