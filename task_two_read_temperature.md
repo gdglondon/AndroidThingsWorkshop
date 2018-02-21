@@ -36,6 +36,8 @@ For more information, please refer to https://developer.android.com/things/sdk/p
 3. TC74 Temperature Sensor
 
     The TC74 is a serially accessible, digital temperature sensor particularly suited for low cost and small form-factor applications.
+    You can find the datasheet here: 
+![Sensor datasheet](./Diagrams/Temperature_Sensor/sensor-datasheet.pdf)
 
 ### TC74 Digital Temperature Sensor Pinout
 
@@ -51,6 +53,7 @@ From the TC74 datasheet, we can identify the following:
 | 4     | SCLK    | I2C input for the serial clock                            |
 | 5     | VDD     | Power supply input to operate the temperature sensor      |
 
+
 Looking at the Raspberry Pi 3 and Pico i.MXP7 pinout diagrams, we have the following dedicated pins for SDA and SCLK
 
 ![](./Diagrams/I2C/i2c_pins.png)
@@ -59,36 +62,70 @@ This is perfect and exactly what we need! As a bonus, the pin numbers are exactl
 
 ### Temperature Sensor Android Things Circuit
 
+Connecting the temperature sensor to your Android Things device is very simple and straight forward. 
+
 ![](./Diagrams/Temperature_Sensor/Temperature-Sensor-Connections.png)
 
-```    
-private lateinit var i2cDevice: I2cDevice
-       
-       override fun onStart() {
-           super.onStart()
-           i2cDevice = PeripheralManagerService().openI2cDevice("I2C1", ADDRESS)
-   
-   
-           while (true) {
-   
-               val array = ByteArray(1)
-               i2cDevice.write(array, 1)
-   
-               val input = ByteArray(1)
-               i2cDevice.read(input, 1)
-   
-               val temperature: Int = input[0].toInt() and 0xff
-               Log.e("Sensor", "$temperature")
-   
-               Thread.sleep(3000)
-           }
-           
-       }
-   
-       override fun onDestroy() {
-           super.onDestroy()
-           i2cDevice.close()
-       }
-  ```
+### Reading Temperature Data
 
-![Sensor datasheet](./Diagrams/Temperature_Sensor/sensor-datasheet.pdf)
+Assuming your Android project has already been set up following the Blink LED exercise, we can dive straight into the main code that will allow reading temperature data.
+
+In the `onCreate()` we can call on the `PeripheralManagerService()`. In order to open an I2C connection to our temperature sensor, the `openI2cDevice()` method takes two parameters:
+
+1. The pin address as specified by your Raspeberry Pi 3 or Pico i.MXP7 datasheet. In our case it will be "I2C1"
+2. The I2C peripheral address as specified by the TC74 datasheet. From the documentation, the default address is 1001 101b which translates to 0x77
+
+```
+private lateinit var service: PeripheralManagerService
+private lateinit var i2cDevice: I2cDevice
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    try {
+        i2cDevice = service.openI2cDevice(I2C_ADDRESS, TC74_TEMPERATURE_SENSOR_SLAVE)
+    } catch (e: IOException) {
+        throw IllegalStateException("$I2C_ADDRESS bus slave $TC74_TEMPERATURE_SENSOR_SLAVE connection cannot be opened.", e)
+    }
+}
+```
+
+Next step is to read the actual temperature data. This is done in two steps:
+1. First we need to tell the sensor we want to read a byte array of size 1
+2. The sensor will then set the data and we can then read from it
+
+A simple implementation is shown below:
+
+```    
+while (true) {
+    val array = ByteArray(1)
+    i2cDevice.write(array, 1)
+
+    val input = ByteArray(1)
+    i2cDevice.read(input, 1)
+
+    val temperature: Int = input[0].toInt() and 0xff
+    Log.e("Sensor", "$temperature")
+
+    Thread.sleep(3000)
+}
+
+```
+
+Once we have some data in our byte array, we can then read from it and log it. By AND-ing the value from the byte array with `0xFF`, we ensure that we are only left with the least significant bits. This is typicaly referred to as masking. If your byte value is only 8 bit, it is not needed as masking will have no effect. If it is higher however, masking will have the following effect:
+
+```
+    0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1
+ &  0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+    -------------------------------
+    0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1
+```
+
+Finally we call the `close()` method in the `onDestroy()` method. This is because we want to free up the temperature sensor resources and make it accessible again when no longer in use. 
+
+```
+override fun onDestroy() {
+    super.onDestroy()
+    i2cDevice.close()
+}
+```
