@@ -122,7 +122,7 @@ class Led(val pinName: String) : AutoCloseable {
     }
 
     fun blink() {
-        gpio?.value = !gpio?.value
+        gpio?.value = !(gpio?.value ?: false)
     }
 
     override fun close() {
@@ -136,24 +136,24 @@ class Led(val pinName: String) : AutoCloseable {
 6. In the BlinkLedActivity, we can now create an instance of Led in `onCreate` and implement a `Runnable` to handle the blinking as well as a 1 second delay.
 
 ```
-class BlinkLedActivity : Activity() {
+class MainActivity : Activity() {
 
-    private lateinit var led
+    private lateinit var led : Led
     private val ledHandler = Handler()
 
-    protected fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_blink)
+        setContentView(R.layout.activity_main)
 
         try {
             led = Led("BCM6")
-            ledHandler.post()
+            ledHandler.post(ledRunnable())
         } catch (e: IOException) {
             throw RuntimeException("Error connecting to IO Port", e)
         }
     }
 
-    protected fun onDestroy() {
+    override fun onDestroy() {
         super.onDestroy()
         try {
             led.close()
@@ -162,22 +162,16 @@ class BlinkLedActivity : Activity() {
         }
     }
 
-    private fun ledRunnable(): Runnable = Runnable() {
-        override fun run() {
-            try {
-                led.blink()
-                ledHandler.postDelayed(ledRunnable, DELAY)
-            } catch (IOException e) {
-                Log.e(TAG, "Error on peripheral", e)
-            }
-        }
+    private fun ledRunnable(): Runnable = Runnable {
+        led.blink()
+        ledHandler.postDelayed(ledRunnable(), DELAY)
     }
 
     companion object {
         const val TAG = "BlinkLedActivity"
-        const val DELAY = 1000
+        const val DELAY = 1000L
     }
-    
+
 }
 ```
 
