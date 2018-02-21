@@ -21,12 +21,13 @@ Each device must have a unique address to disambiguate the commands sent. Some d
 For more information, please refer to https://developer.android.com/things/sdk/pio/i2c.html
 
 # Test
-![Sensor datasheet](schematic/sensor-datasheet.pdf)
-![](schematic/pinout-raspberrypi.png)
-![](schematic/temp-sensor-pinout.png)
-![](schematic/Temperature-Sensor-Connections.png)
+![Sensor datasheet](./Diagrams/Temperature_Sensor/sensor-datasheet.pdf)
+![](./Diagrams/Temperature_Sensor/pinout-raspberrypi.png)
+![](./Diagrams/Temperature_Sensor/temp-sensor-pinout.png)
+![](./Diagrams/Temperature_Sensor/Temperature-Sensor-Connections.png)
 
-```    private lateinit var i2cDevice: I2cDevice
+```    
+private lateinit var i2cDevice: I2cDevice
        
        override fun onStart() {
            super.onStart()
@@ -52,4 +53,5 @@ For more information, please refer to https://developer.android.com/things/sdk/p
        override fun onDestroy() {
            super.onDestroy()
            i2cDevice.close()
-       }```
+       }
+       ```
