@@ -176,3 +176,49 @@ class MainActivity : Activity() {
 ```
 
 7. Run the app and you should see your first Android Things Blinking LED! 🚨
+
+
+
+# Button
+
+```class MainActivity : Activity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
+    private var switch: Gpio? = null
+    private var led: Gpio? = null
+
+    override fun onStart() {
+        super.onStart()
+
+        switch = PeripheralManagerService().openGpio("GPIO6_IO14")
+        switch?.setDirection(Gpio.DIRECTION_IN)
+        switch?.setActiveType(Gpio.ACTIVE_LOW)
+        switch?.setEdgeTriggerType(Gpio.EDGE_BOTH)
+        switch?.registerGpioCallback(object : GpioCallback() {
+            override fun onGpioEdge(gpio: Gpio?): Boolean {
+                setLed(gpio?.value ?: false)
+                return true
+            }
+        })
+
+        led = PeripheralManagerService().openGpio("GPIO2_IO02")
+        led?.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
+    }
+
+    fun setLed(value: Boolean) {
+        led?.value = value
+    }
+
+    override fun onStop() {
+        switch?.close().also {
+            switch = null
+        }
+        led?.close().also {
+            led = null
+        }
+        super.onStop()
+    }
+}```
