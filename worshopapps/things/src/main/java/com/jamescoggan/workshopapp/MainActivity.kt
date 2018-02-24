@@ -2,31 +2,65 @@ package com.jamescoggan.workshopapp
 
 import android.app.Activity
 import android.os.Bundle
+import com.jamescoggan.workshopapp.actuators.Actuator
+import com.jamescoggan.workshopapp.actuators.Led
+import com.jamescoggan.workshopapp.port.gpioForButton
+import com.jamescoggan.workshopapp.port.gpioForLED
+import com.jamescoggan.workshopapp.port.i2cForTempSensor
+import com.jamescoggan.workshopapp.sensors.OnStateChangeListener
+import com.jamescoggan.workshopapp.sensors.Sensor
+import com.jamescoggan.workshopapp.sensors.Switch
+import com.jamescoggan.workshopapp.sensors.TemperatureSensor
+import timber.log.Timber
 
-/**
- * Skeleton of an Android Things activity.
- *
- * Android Things peripheral APIs are accessible through the class
- * PeripheralManagerService. For example, the snippet below will open a GPIO pin and
- * set it to HIGH:
- *
- * <pre>{@code
- * val service = PeripheralManagerService()
- * val mLedGpio = service.openGpio("BCM6")
- * mLedGpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
- * mLedGpio.value = true
- * }</pre>
- * <p>
- * For more complex peripherals, look for an existing user-space driver, or implement one if none
- * is available.
- *
- * @see <a href="https://github.com/androidthings/contrib-drivers#readme">https://github.com/androidthings/contrib-drivers#readme</a>
- *
- */
 class MainActivity : Activity() {
+
+    companion object {
+        private const val REFRESH_TIME = 2000L // Refresh every 2 seconds
+    }
+
+    private var led: Actuator<Boolean> = Led(gpioForLED)
+    private var tempSensor: Sensor<Int> = TemperatureSensor(i2cForTempSensor, REFRESH_TIME)
+    private var switch: Sensor<Boolean> = Switch(gpioForButton)
+
+    private val switchListener = object : OnStateChangeListener<Boolean> {
+        override fun onStateChanged(state: Boolean) = onSwitch(state)
+    }
+
+    private val tempSensorListener = object : OnStateChangeListener<Int> {
+        override fun onStateChanged(state: Int) = onTemp(state)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        led.open()
+        switch.open()
+        tempSensor.open()
+
+        switch.setListener(switchListener)
+        tempSensor.setListener(tempSensorListener)
+    }
+
+    override fun onStop() {
+        led.close()
+        switch.close()
+        tempSensor.close()
+
+        super.onStop()
+    }
+
+    private fun onSwitch(state: Boolean) {
+        Timber.d("Button pressed: $state")
+        led.setState(state)
+    }
+
+    private fun onTemp(state: Int) {
+        Timber.d("Current Temperature: $state")
     }
 }
