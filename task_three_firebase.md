@@ -1,3 +1,11 @@
+## Setup
+
+Clone this repo
+
+## Connect the pins
+
+![](Diagrams/Temperature_Sensor/pi%20with%20temp%20sensor_bb.png)
+
 ## Create firebase project
 
 ## Setup FireBase on the things
