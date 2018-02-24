@@ -33,6 +33,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_version"
     implementation "org.jetbrains.anko:anko-design-coroutines:$anko_version"
 
+    implementation 'com.google.firebase:firebase-database:11.8.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
@@ -43,3 +44,6 @@ kotlin {
         coroutines "enable"
     }
 }
+
+
+apply plugin: 'com.google.gms.google-services'
