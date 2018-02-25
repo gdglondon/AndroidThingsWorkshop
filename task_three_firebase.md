@@ -11,6 +11,8 @@ adb shell am startservice -n com.google.wifisetup/.WifiSetupService -a WifiSetup
 To make the lesson easier, the base code for it is already done (based on the previous tasks)
 So clone this repository and open the `worshopapps` folder.
 
+If you have any issues, you can checkout the `firebase-setup` branch and look at the implemented code.
+
 This project contains 3 modules: 
 - common: where the common code between the modules is stored
 - things: this is our Android Things application
