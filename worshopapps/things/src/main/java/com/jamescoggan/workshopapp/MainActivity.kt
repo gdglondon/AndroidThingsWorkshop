@@ -1,7 +1,7 @@
 package com.jamescoggan.workshopapp
 
-import android.app.Activity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import com.jamescoggan.workshopapp.actuators.Actuator
 import com.jamescoggan.workshopapp.actuators.Led
 import com.jamescoggan.workshopapp.port.gpioForButton
@@ -13,7 +13,7 @@ import com.jamescoggan.workshopapp.sensors.Switch
 import com.jamescoggan.workshopapp.sensors.TemperatureSensor
 import timber.log.Timber
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REFRESH_TIME = 2000L // Refresh every 2 seconds
