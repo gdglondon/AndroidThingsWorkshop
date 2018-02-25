@@ -152,7 +152,7 @@ We want to observe data changes for the HomeInformation reference in the databas
 For better isolation of the code, we are going to use LiveData from the Architectural Components, we could use the value listener direct or implement LiveData on it. 
 
 ```
-// Common module - HomeInformationLiveData.kt
+// HomeInformationLiveData.kt
 class HomeInformationLiveData(private val databaseReference: DatabaseReference) : LiveData<HomeInformation>() {
 
     private val valueEventListener = object : ValueEventListener {
@@ -213,7 +213,15 @@ Now that we have the common module setup to read/write in FireBase, now is the t
 ## Setup FireBase on the Things
 
 Before we can read/store data we need to connect to FireBase, then once connected we can observe the data.
-So we are going to load the FirebaseApp on our app creation, and login when our activity is started.
+So we are going to add the dependencies, load the FirebaseApp on our app creation, and login when our activity is started.
+
+``` 
+// things/build.gradle
+implementation 'com.google.firebase:firebase-database:11.0.4'
+implementation 'com.google.firebase:firebase-auth:11.0.4'
+implementation "com.google.android.gms:play-services-base:11.0.4"
+implementation "android.arch.lifecycle:extensions:1.1.0"
+```
 
 ```
 // ThingsApplication.kt
@@ -221,6 +229,7 @@ FirebaseApp.initializeApp(this)
 ```
 
 ```
+    // MainActivity.kt
     private fun loginFirebase() {
         val firebase = FirebaseAuth.getInstance()
         firebase.signInAnonymously()
@@ -268,6 +277,7 @@ For our implementation of the observer, when we receive the light object, we set
 On the case of the button and temperature changes, we are going to store them in our database when changed.
 
 ```
+    // MainActivity.kt
     private fun onSwitch(state: Boolean) {
         Timber.d("Button pressed: $state")
         homeInformationStorage?.saveButtonState(state)
@@ -296,10 +306,20 @@ Same as the things application, we need to load our FirebaseApp on app creation 
 For the case of the mobile app we are using the onResume method instead.
 
 ```
+// mobile/build.gradle
+implementation 'com.google.firebase:firebase-database:11.0.4'
+implementation 'com.google.firebase:firebase-auth:11.0.4'
+implementation "com.google.android.gms:play-services-base:11.0.4"
+implementation "android.arch.lifecycle:extensions:1.1.0"
+```
+
+```
 // MobileApplication.kt
 FirebaseApp.initializeApp(this)
+```
 
-// MainActivity.kt
+```
+    // MainActivity.kt
     override fun onResume() {
         super.onResume()
 
@@ -363,6 +383,7 @@ Now we setup the observer of the data changes and set the UI accordingly
 Also remember to stop observing the data on pause.
 
 ```
+    // MainActivity.kt
     private var homeInformationLiveData: HomeInformationLiveData? = null
     private var homeInformationStorage: HomeInformationStorage? = null
 
@@ -386,6 +407,7 @@ Also remember to stop observing the data on pause.
 Now we can observe the data after the login success
 
 ``` 
+    // MainActivity.kt
     private fun observeData() {
         Timber.d("Logged in, observing data")
         val reference = FirebaseDatabase.getInstance().reference.child("home")
@@ -407,6 +429,7 @@ Now we can observe the data after the login success
 For our toggle button, we wan't to save its state selection in the led object of the database.
 
 ```
+    // MainActivity.kt
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
