@@ -206,14 +206,14 @@ class HomeInformationStorage(private val reference: DatabaseReference) {
 ```
 
 ---
-### Step 16
+### Step 18
 
 Now that we have the common module setup to read/write in FireBase, now is the time to add the logic to our modules, first lets start with Android Things.
 
 ## Setup FireBase on the Things
 
 Before we can read/store data we need to connect to FireBase, then once connected we can observe the data.
-So we are going to load the FirebaseApp on our app launch, and login when our activity is started.
+So we are going to load the FirebaseApp on our app creation, and login when our activity is started.
 
 ```
 // ThingsApplication.kt
@@ -236,7 +236,7 @@ FirebaseApp.initializeApp(this)
 ```
 
 ---
-### Step 16
+### Step 19
 
 On the same activity, we need to setup or LiveData and storage, so on our observeData we are going to load our database reference and create the instances of those objects.
 For our implementation of the observer, when we receive the light object, we set that value in the LED.
@@ -263,7 +263,7 @@ For our implementation of the observer, when we receive the light object, we set
 ```
 
 ---
-### Step 16
+### Step 20
 
 On the case of the button and temperature changes, we are going to store them in our database when changed.
 
@@ -287,10 +287,37 @@ If you open the FireBase Console, and expand your database, you will see somethi
 
 ## Setup FireBase on the Mobile
 
+No we need to do the same approach in the mobile app, with some slight differences.
+
+---
+### Step 20
+
+Same as the things application, we need to load our FirebaseApp on app creation and login into firebase on activity load.
+For the case of the mobile app we are using the onResume method instead.
+
 ```
-// ThingsApplication.kt
+// MobileApplication.kt
 FirebaseApp.initializeApp(this)
+
+// MainActivity.kt
+    override fun onResume() {
+        super.onResume()
+
+        loginFirebase()
+    }
+    
+    private fun loginFirebase() {
+        val firebase = FirebaseAuth.getInstance()
+        firebase.signInAnonymously()
+                .addOnSuccessListener { observeData() }
+                .addOnFailureListener { Timber.e("Failed to login $it") }
+    } 
 ```
+
+---
+### Step 21
+
+On the mobile app we want to be able to interact with the database changes, so we need to create a few UI elements in our layout file
 
 ```
 <!-- activity_main.xml -->
@@ -329,6 +356,12 @@ FirebaseApp.initializeApp(this)
  
 ```
 
+---
+### Step 22
+
+Now we setup the observer of the data changes and set the UI accordingly
+Also remember to stop observing the data on pause.
+
 ```
     private var homeInformationLiveData: HomeInformationLiveData? = null
     private var homeInformationStorage: HomeInformationStorage? = null
@@ -344,29 +377,13 @@ FirebaseApp.initializeApp(this)
         temperature_status.text = tempText
 
         led_button.isChecked = it?.light ?: false
-    }
+    }   
 ```
 
-```
-    override fun onResume() {
-        super.onResume()
+---
+### Step 23
 
-        loginFirebase()
-    }
-
-    override fun onPause() {
-        homeInformationLiveData?.removeObserver(homeDataObserver)
-
-        super.onPause()
-    }
-    
-    private fun loginFirebase() {
-        val firebase = FirebaseAuth.getInstance()
-        firebase.signInAnonymously()
-                .addOnSuccessListener { observeData() }
-                .addOnFailureListener { Timber.e("Failed to login $it") }
-    } 
-```
+Now we can observe the data after the login success
 
 ``` 
     private fun observeData() {
@@ -376,7 +393,18 @@ FirebaseApp.initializeApp(this)
         homeInformationLiveData?.observe(this, homeDataObserver)
         homeInformationStorage = HomeInformationStorage(reference)
     }
+    
+    override fun onPause() {
+        homeInformationLiveData?.removeObserver(homeDataObserver)
+
+        super.onPause()
+    }    
 ```
+
+---
+### Step 24
+
+For our toggle button, we wan't to save its state selection in the led object of the database.
 
 ```
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -385,36 +413,8 @@ FirebaseApp.initializeApp(this)
 
         led_button.setOnCheckedChangeListener { _, state -> setLed(state) }
     }
+    
+    private fun setLed(state: Boolean) {
+        homeInformationStorage?.saveLightState(state)
+    }
 ```
-
-## Configure your project in the console
-[Firebase console](https://console.firebase.google.com/u/0/)
-
-## Install node JS
-
-### Windows
-[Node js download](https://nodejs.org/en/download/)
-
-### Linux
-```
-curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-apt-get install nodejs
-```
-
-### Mac
-``` brew install node.js ```
-
-
-## Install the Firebase CLI
-```npm install -g firebase-tools```
-
-## Login firebase
-```firebase login```
-
-## Create your project
-
-- Create a project folder
-- ```firebase init```
-
-## Deploy your project 
-```firebase deploy```
