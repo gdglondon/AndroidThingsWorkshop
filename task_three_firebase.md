@@ -1,16 +1,108 @@
 ## Setup
 
+Since the FireBase services are stored in the cloud, we need to setup the wifi on our Android Things so it can communicate to the internet.
+
+To setup the wifi on your Android Things you can use the setup utility tool or use the command below.
 Setup wifi on your Android Things, replace the `$HERE` values
 ```
 adb shell am startservice -n com.google.wifisetup/.WifiSetupService -a WifiSetupService.Connect -e ssid $YOUR_SSID_HERE -e passphrase $YOUR_WIFI_PASSWORD_HERE
 ```
-Clone this repo
+
+To make the lesson easier, the base code for it is already done (based on the previous tasks)
+So clone this repository and open the `worshopapps` folder.
+
+This project contains 3 modules: 
+- common: where the common code between the modules is stored
+- things: this is our Android Things application
+- mobile: this is our mobile phone application
 
 ## Connect the pins
+
+Now that we have our software setup, we need to connect our hardware together.
+The pins are same as the previous tasks, so if you are already setup, you don't need this.
 
 ![](Diagrams/Temperature_Sensor/pi%20with%20temp%20sensor_bb.png)
 
 ## Create a FireBase project
+
+##### Step 1
+
+There are 2 ways to setup Firebase, one is to go in the [console](https://console.firebase.google.com) and created your own project, or you can use Android Studio to do ir for your.
+
+![](images/step1.png)
+
+##### Step 2
+
+Android Studio will open a new tab that gives your a list of all the features you can automatically install.
+In this case we wan't to use the FireBase Realtime database.
+
+![](images/step2.png)
+
+##### Step 3
+
+Select the option
+
+![](images/step3.png)
+
+##### Step 4
+First of all, you need to connect your Android Studio to FireBase, so select the button connect to FireBase
+
+![](images/step4.png)
+
+##### Step 5
+
+![](images/step5.png)
+
+##### Step 6
+
+You need to select what project you want to connect, or you can create a new one.
+
+![](images/step6.png)
+
+##### Step 7
+
+Once connected you can choose the module you want to connect to FireBase
+
+![](images/step7.png)
+
+##### Step 8
+
+And add the changes to your gradle files. In this case we wan't to connect both
+
+![](images/step8.png)
+
+##### Step 9
+
+You have added one module to the FireBase project, you need to do the same for the other module, go back to step 6 and do it for the second module
+
+![](images/step9.png)
+
+##### Step 10
+
+Now open the [FireBase Console](https://console.firebase.google.com)
+
+![](images/step10.png)
+
+##### Step 11
+
+And open the authentication tab
+
+![](images/step11.png)
+
+##### Step 12
+
+For this lesson we are going to use the anonymous login, but remember you need to change this for a production build.
+So select the anonymous option.
+
+![](images/step12.png)
+
+##### Step 13
+
+And activate it
+
+![](images/step13.png)
+
+
 
 ## Setup FireBase on the common module
 
