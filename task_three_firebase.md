@@ -16,6 +16,7 @@ This project contains 3 modules:
 - things: this is our Android Things application
 - mobile: this is our mobile phone application
 
+---
 ## Connect the pins
 
 Now that we have our software setup, we need to connect our hardware together.
@@ -23,95 +24,119 @@ The pins are same as the previous tasks, so if you are already setup, you don't 
 
 ![](Diagrams/Temperature_Sensor/pi%20with%20temp%20sensor_bb.png)
 
+---
 ## Create a FireBase project
 
-##### Step 1
+### Step 1
 
 There are 2 ways to setup Firebase, one is to go in the [console](https://console.firebase.google.com) and created your own project, or you can use Android Studio to do ir for your.
 
 ![](images/step1.png)
 
-##### Step 2
+---
+### Step 2
 
 Android Studio will open a new tab that gives your a list of all the features you can automatically install.
 In this case we wan't to use the FireBase Realtime database.
 
 ![](images/step2.png)
 
-##### Step 3
+---
+### Step 3
 
 Select the option
 
 ![](images/step3.png)
 
-##### Step 4
+---
+### Step 4
 First of all, you need to connect your Android Studio to FireBase, so select the button connect to FireBase
 
 ![](images/step4.png)
 
-##### Step 5
+---
+### Step 5
 
 ![](images/step5.png)
 
-##### Step 6
+---
+### Step 6
 
 You need to select what project you want to connect, or you can create a new one.
 
 ![](images/step6.png)
 
-##### Step 7
+---
+### Step 7
 
 Once connected you can choose the module you want to connect to FireBase
 
 ![](images/step7.png)
 
-##### Step 8
+---
+### Step 8
 
 And add the changes to your gradle files. In this case we wan't to connect both
 
 ![](images/step8.png)
 
-##### Step 9
+---
+### Step 9
 
 You have added one module to the FireBase project, you need to do the same for the other module, go back to step 6 and do it for the second module
 
 ![](images/step9.png)
 
-##### Step 10
+---
+### Step 10
 
 Now open the [FireBase Console](https://console.firebase.google.com)
 
 ![](images/step10.png)
 
-##### Step 11
+---
+### Step 11
 
 And open the authentication tab
 
 ![](images/step11.png)
 
-##### Step 12
+---
+### Step 12
 
 For this lesson we are going to use the anonymous login, but remember you need to change this for a production build.
 So select the anonymous option.
 
 ![](images/step12.png)
 
-##### Step 13
+---
+### Step 13
 
 And activate it
 
 ![](images/step13.png)
 
-
-
+---
 ## Setup FireBase on the common module
 
-``` // Things, Mobile, commond build.gradle
+Now that you have the FireBase project setup, we can now setup the common module.
+The idea of the common module is to isolate the logic for future testing and reusability between the mobile and things module.
+
+### Step 14
+
+Add the required dependencies to the common module
+
+``` // commond/build.gradle
     implementation 'com.google.firebase:firebase-database:11.0.4'
     implementation 'com.google.firebase:firebase-auth:11.0.4'
     implementation "com.google.android.gms:play-services-base:11.0.4"
     implementation "android.arch.lifecycle:extensions:1.1.0"
 ```
+
+---
+### Step 15
+
+In the FireBase database we are going to store: light, temperature and button. To make it more clean we are going to create the HomeInformation data class that contains these 3 objects.
 
 ```
 // HomeInformation.kt
@@ -119,6 +144,12 @@ data class HomeInformation(var button: Boolean = false,
                            var light: Boolean = false,
                            var temperature: Float = 0f)
 ```
+
+---
+### Step 16
+
+We want to observe data changes for the HomeInformation reference in the database.
+For better isolation of the code, we are going to use LiveData from the Architectural Components, we could use the value listener direct or implement LiveData on it. 
 
 ```
 // Common module - HomeInformationLiveData.kt
@@ -146,6 +177,11 @@ class HomeInformationLiveData(private val databaseReference: DatabaseReference) 
 }
 ```
 
+---
+### Step 17
+
+On the other side, we want to store data in the database, so we are going to isolate the logic in a similar way and create the HomeInformationStorage class
+
 ```
 // Common module - HomeInformationStorage.kt
 class HomeInformationStorage(private val reference: DatabaseReference) {
@@ -169,7 +205,15 @@ class HomeInformationStorage(private val reference: DatabaseReference) {
 }
 ```
 
+---
+### Step 16
+
+Now that we have the common module setup to read/write in FireBase, now is the time to add the logic to our modules, first lets start with Android Things.
+
 ## Setup FireBase on the Things
+
+Before we can read/store data we need to connect to FireBase, then once connected we can observe the data.
+So we are going to load the FirebaseApp on our app launch, and login when our activity is started.
 
 ```
 // ThingsApplication.kt
@@ -190,6 +234,12 @@ FirebaseApp.initializeApp(this)
         loginFirebase()
     }    
 ```
+
+---
+### Step 16
+
+On the same activity, we need to setup or LiveData and storage, so on our observeData we are going to load our database reference and create the instances of those objects.
+For our implementation of the observer, when we receive the light object, we set that value in the LED.
 
 ```
     // Homeactivity.kt Things
@@ -212,6 +262,11 @@ FirebaseApp.initializeApp(this)
     }    
 ```
 
+---
+### Step 16
+
+On the case of the button and temperature changes, we are going to store them in our database when changed.
+
 ```
     private fun onSwitch(state: Boolean) {
         Timber.d("Button pressed: $state")
@@ -224,6 +279,11 @@ FirebaseApp.initializeApp(this)
         homeInformationStorage?.saveTemperature(state.toFloat())
     }
 ```
+
+Now you can launch your Android Things app. 
+If you open the FireBase Console, and expand your database, you will see something similar than the image below, where the data is being updated from the Android Things.
+
+[](images/step16.png)
 
 ## Setup FireBase on the Mobile
 
