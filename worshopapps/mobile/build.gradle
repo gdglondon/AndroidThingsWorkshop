@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    implementation project(':common')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation "com.android.support:support-v4:27.0.2"
@@ -31,7 +32,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.jakewharton.timber:timber:4.6.1'
     implementation "org.jetbrains.anko:anko-sdk15-coroutines:$anko_version"
-    implementation "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_versgion"
+    implementation "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_version"
     implementation "org.jetbrains.anko:anko-design-coroutines:$anko_version"
 
     testImplementation 'junit:junit:4.12'
