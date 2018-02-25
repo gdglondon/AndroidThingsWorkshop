@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jamescoggan.workshopapp">
 
-    <application android:name=".ThingsApplication">
+    <application
+        android:name=".ThingsApplication"
+        android:theme="@style/AppTheme">
         <uses-library android:name="com.google.android.things" />
 
         <activity android:name=".MainActivity">
