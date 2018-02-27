@@ -1,6 +1,6 @@
 ## Setup
 
-Since the FireBase services are stored in the cloud, we need to setup the wifi on our Android Things so it can communicate to the internet.
+Since the Firebase services are stored in the cloud, we need to setup the wifi on our Android Things so it can communicate to the internet.
 
 To setup the wifi on your Android Things you can use the setup utility tool or use the command below.
 Setup wifi on your Android Things, replace the `$HERE` values
@@ -27,7 +27,7 @@ The pins are same as the previous tasks, so if you are already setup, you don't 
 ![](Diagrams/Temperature_Sensor/pi%20with%20temp%20sensor_bb.png)
 
 ---
-## Create a FireBase project
+## Create a Firebase project
 
 ### Step 1
 
@@ -39,7 +39,7 @@ There are 2 ways to setup Firebase, one is to go in the [console](https://consol
 ### Step 2
 
 Android Studio will open a new tab that gives your a list of all the features you can automatically install.
-In this case we wan't to use the FireBase Realtime database.
+In this case we wan't to use the Firebase Realtime database.
 
 ![](images/step2.png)
 
@@ -52,7 +52,7 @@ Select the option
 
 ---
 ### Step 4
-First of all, you need to connect your Android Studio to FireBase, so select the button connect to FireBase
+First of all, you need to connect your Android Studio to Firebase, so select the button connect to Firebase
 
 ![](images/step4.png)
 
@@ -71,7 +71,7 @@ You need to select what project you want to connect, or you can create a new one
 ---
 ### Step 7
 
-Once connected you can choose the module you want to connect to FireBase
+Once connected you can choose the module you want to connect to Firebase
 
 ![](images/step7.png)
 
@@ -85,14 +85,14 @@ And add the changes to your gradle files. In this case we wan't to connect both
 ---
 ### Step 9
 
-You have added one module to the FireBase project, you need to do the same for the other module, go back to step 6 and do it for the second module
+You have added one module to the Firebase project, you need to do the same for the other module, go back to step 6 and do it for the second module
 
 ![](images/step9.png)
 
 ---
 ### Step 10
 
-Now open the [FireBase Console](https://console.firebase.google.com)
+Now open the [Firebase Console](https://console.firebase.google.com)
 
 ![](images/step10.png)
 
@@ -119,9 +119,9 @@ And activate it
 ![](images/step13.png)
 
 ---
-## Setup FireBase on the common module
+## Setup Firebase on the common module
 
-Now that you have the FireBase project setup, we can now setup the common module.
+Now that you have the Firebase project setup, we can now setup the common module.
 The idea of the common module is to isolate the logic for future testing and reusability between the mobile and things module.
 
 ### Step 14
@@ -138,7 +138,7 @@ Add the required dependencies to the common module
 ---
 ### Step 15
 
-In the FireBase database we are going to store: light, temperature and button. To make it more clean we are going to create the HomeInformation data class that contains these 3 objects.
+In the Firebase database we are going to store: light, temperature and button. To make it more clean we are going to create the HomeInformation data class that contains these 3 objects.
 
 ```
 // HomeInformation.kt
@@ -210,11 +210,11 @@ class HomeInformationStorage(private val reference: DatabaseReference) {
 ---
 ### Step 18
 
-Now that we have the common module setup to read/write in FireBase, now is the time to add the logic to our modules, first lets start with Android Things.
+Now that we have the common module setup to read/write in Firebase, now is the time to add the logic to our modules, first lets start with Android Things.
 
-## Setup FireBase on the Things
+## Setup Firebase on the Things
 
-Before we can read/store data we need to connect to FireBase, then once connected we can observe the data.
+Before we can read/store data we need to connect to Firebase, then once connected we can observe the data.
 So we are going to add the dependencies, load the FirebaseApp on our app creation, and login when our activity is started.
 
 ``` 
@@ -293,18 +293,18 @@ On the case of the button and temperature changes, we are going to store them in
 ```
 
 Now you can launch your Android Things app. 
-If you open the FireBase Console, and expand your database, you will see something similar than the image below, where the data is being updated from the Android Things.
+If you open the Firebase Console, and expand your database, you will see something similar than the image below, where the data is being updated from the Android Things.
 
 [](images/step16.png)
 
-## Setup FireBase on the Mobile
+## Setup Firebase on the Mobile
 
 No we need to do the same approach in the mobile app, with some slight differences.
 
 ---
 ### Step 20
 
-Same as the things application, we need to load our FirebaseApp on app creation and login into firebase on activity load.
+Same as the things application, we need to load our FirebaseApp on app creation and login into Firebase on activity load.
 For the case of the mobile app we are using the onResume method instead.
 
 ```
