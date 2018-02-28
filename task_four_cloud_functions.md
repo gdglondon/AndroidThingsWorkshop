@@ -298,6 +298,36 @@ To be able to have the parameter, we create something called an entity.
 
 ![](images/switch_test.png)
 
+## Updating the cloud functions code
+
+Add the light state code
+
+``` 
+    function setLight() {
+        let state = parameters.state ? parameters.state : 'off';
+        let value = state === 'on';
+        writeToLightDb(value);
+    }
+
+    function writeToLightDb(value) {
+        admin.database().ref('/home/light').set(value);
+        sendSimpleMessage('Setting your light to ' + value);
+    }
+```
+
+Update the action call
+
+``` 
+    console.log("Received action: ", action);
+    if (action === 'input.temperature') {
+        temperatureRead();
+    } else if (action === 'input.light') {
+        setLight();
+    } else {
+        unknownRequest()
+    }
+```
+
 ## Using the google assistant
 
 Now that you have got your DialogFlow you can test it within your Google account.

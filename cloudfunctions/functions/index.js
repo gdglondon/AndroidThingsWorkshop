@@ -56,17 +56,28 @@ function processRequest(request, response) {
     }
 
     function setLight() {
-        let param = parameters.state ? parameters.state : parameters.State
-        let state = param ? param : 'off';
+        let state = parameters.state ? parameters.state : 'off';
         let value = state === 'on';
         writeToLightDb(value);
     }
 
     function writeToLightDb(value) {
-        return admin.database().ref('/home/light').set(value => {
-            sendSimpleMessage('Setting your light to ' + state);
-        });
+        admin.database().ref('/home/light').set(value);
+        sendSimpleMessage('Setting your light to ' + value);
     }
+
+    // function setLight() {
+    //     let state = parameters.state ? parameters.state : 'off';
+    //     let value = state === 'on';
+    //     writeToLightDb(value);
+    // }
+    //
+    // function writeToLightDb(value) {
+    //     return admin.database().ref('/home/light').set(value => {
+    //         let message = 'Setting your light to ' + value;
+    //         sendSimpleMessage(message);
+    //     });
+    // }
 
     function temperatureRead() {
         var responseText = 'Unable to read temperature';
